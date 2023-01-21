@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using UniRx;
 using UnityEngine;
+using Zenject;
 using Random = UnityEngine.Random;
     public class ProduceUnitCommandExecuter : CommandExecutorBase<IProduceUnitCommand>, IUnitProducer
     {
@@ -7,9 +9,11 @@ using Random = UnityEngine.Random;
         [SerializeField] private Transform _unitsParent;
         [SerializeField] private int _maximumUnitsInQueue = 6;
         private ReactiveCollection<IUnitProductionTask> _queue = new ReactiveCollection<IUnitProductionTask>();
+    private DiContainer _diContainer;
 
 
-    
+
+
     private void Update()
         {
             if (_queue.Count == 0)
@@ -21,9 +25,12 @@ using Random = UnityEngine.Random;
             if (innerTask.TimeLeft <= 0)
             {
                 RemoveTaskAtIndex(0);
-                Instantiate(innerTask.UnitPrefab, new Vector3(Random.Range(-10, 10), 0, Random.Range(-10, 10)), Quaternion.identity, _unitsParent);
-            }
+            //var factionMember = instance.GetComponent<FactionMember>();
+            //factionMember.SetFaction(GetComponent<FactionMember>().FactionId);
+
+
         }
+    }
         public void Cancel(int index) => RemoveTaskAtIndex(index);
         private void RemoveTaskAtIndex(int index)
         {
@@ -33,7 +40,7 @@ using Random = UnityEngine.Random;
             }
             _queue.RemoveAt(_queue.Count - 1);
         }
-        public override void ExecuteSpecificCommand(IProduceUnitCommand command)
+    public override async Task ExecuteSpecificCommand(IProduceUnitCommand command)
         {
         if (_queue.Count == _maximumUnitsInQueue)
         {
